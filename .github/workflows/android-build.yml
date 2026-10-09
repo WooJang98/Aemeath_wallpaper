@@ -23,18 +23,28 @@ jobs:
           distribution: temurin
           java-version: "17"
 
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android platform and build tools
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
       - name: Unpack project
         run: unzip -q AEMEATH_LiveWallpaper_CI_Build.zip -d project
 
       - name: Build APK
         run: |
-          cd project
-          chmod +x gradlew
-          ./gradlew --no-daemon assembleDebug
+          cd project/aemeath
+          gradle --no-daemon assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: AEMEATH-live-wallpaper-apk
-          path: project/**/build/outputs/apk/**/*.apk
+          path: project/aemeath/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
